@@ -37,16 +37,21 @@
 
 
                 <!-- adding modal -->
-                <Modal v-model="addModal" title="Add Account" :mask-closable="false" :closable="false">
+                <Modal v-model="addModal" title="Add Party" :mask-closable="false" :closable="false">
                     <div class="space">
                         <Select v-model="data.party_id"  placeholder="Select admin type">
                             <Option :value="r.id" v-for="(r, i) in accounts" :key="i" v-if="accounts.length">{{r.name}}</Option>
                         </Select>
                     </div>
                     <div class="space">
-                        <Select v-model="data.transaction_id"  placeholder="Select admin type">
-                            <Option :value="r.id" v-for="(r, i) in subAccounts" :key="i" v-if="subAccounts.length">{{r.name}}</Option>
-                        </Select>
+                        <div class="row">
+                            <div class="col-3"  v-for="(r, i) in subAccounts" :key="i" v-if="subAccounts.length">
+                                <input type="checkbox" :value="r.id"  v-model="data.transaction_id">{{r.name}}
+                            </div>
+                        </div>
+<!--                        <Select v-model="data.transaction_id"  placeholder="Select admin type">-->
+<!--                            <Option :value="r.id" v-for="(r, i) in subAccounts" :key="i" v-if="subAccounts.length">{{r.name}}</Option>-->
+<!--                        </Select>-->
                     </div>
                     <div slot="footer">
                         <Button type="default" @click="addModal=false">Close</Button>
@@ -57,12 +62,12 @@
                 <!-- editing modal -->
                 <Modal v-model="editModal" title="Edit Role" :mask-closable="false" :closable="false">
                     <div class="space">
-                        <Select v-model="editData.party_id"  placeholder="Select Account">
+                        <Select v-model="editData.party_id"  placeholder="Select Party">
                             <Option :value="r.id" v-for="(r, i) in accounts" :key="i" v-if="accounts.length">{{r.name}}</Option>
                         </Select>
                     </div>
                     <div class="space">
-                        <Select v-model="editData.transaction_id"  placeholder="Select Sub Account">
+                        <Select v-model="editData.transaction_id"  placeholder="Select Transaction">
                             <Option :value="r.id" v-for="(r, i) in subAccounts" :key="i" v-if="subAccounts.length">{{r.name}}</Option>
                         </Select>
                     </div>
@@ -125,7 +130,7 @@
             return {
                 data : {
                     party_id: '',
-                    transaction_id: '',
+                    transaction_id: [],
                 },
                 addModal : false,
                 editModal : false,
@@ -133,7 +138,7 @@
                 setData : [],
                 editData : {
                     party_id: '',
-                    transaction_id: '',
+                    transaction_id: [],
                 },
                 index : -1,
                 showDeleteModal: false,
@@ -155,7 +160,7 @@
         methods : {
             async addItem(){
                 if(this.data.party_id =='') return this.e('Party is required')
-                if(this.data.transaction_id =='') return this.e('Transaction is required')
+                // if(this.data.transaction_id =='') return this.e('Transaction is required')
 
                 const res = await this.callApi('post', 'api/party_transaction/store', this.data)
                 if(res.status===200){

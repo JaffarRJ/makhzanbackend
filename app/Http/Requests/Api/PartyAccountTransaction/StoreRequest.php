@@ -26,8 +26,8 @@ class StoreRequest extends BaseRequest
         return [
             'party_transaction_id' => 'required|exists:party_transactions,id',
             'account_id' => 'required|exists:accounts,id',
-            'dr' => 'required',
-            'cr' => 'required'
+//            'dr' => 'required',
+//            'cr' => 'required'
         ];
     }
 }

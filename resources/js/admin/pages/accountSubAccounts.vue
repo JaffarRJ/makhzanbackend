@@ -23,7 +23,7 @@
                                 <td class="_table_name">{{items.account.name}}</td>
                                 <td>{{items.sub_account.name}}</td>
                                 <td>
-                                    <Button type="info" size="small" @click="showEditModal(items, i)">Edit</Button>
+<!--                                    <Button type="info" size="small" @click="showEditModal(items, i)">Edit</Button>-->
                                     <Button type="error" size="small" @click="showDeletingModal(items, i)"  :loading="items.isDeleting">Delete</Button>
                                     <Button type="success" size="small" @click="showStatusesModal(items, i)">{{items.is_active == 1 ? 'Active' : 'Deactive'}}</Button>
                                     <Button type="warning" size="small" @click="showShowsModal(items, i)">{{items.is_show == 1 ? 'Showing' : 'Not Showing'}}</Button>
@@ -44,13 +44,15 @@
                         </Select>
                     </div>
                     <div class="space">
-                        <Select v-model="data.sub_account_id"  placeholder="Select admin type">
-                            <Option :value="r.id" v-for="(r, i) in subAccounts" :key="i" v-if="subAccounts.length">{{r.name}}</Option>
-                        </Select>
+                        <div class="row">
+                            <div class="col-3"  v-for="(r, i) in subAccounts" :key="i" v-if="subAccounts.length">
+                            <input type="checkbox" :value="r.id" v-model="data.sub_account_id">{{r.name}}
+                            </div>
+                        </div>
                     </div>
                     <div slot="footer">
                         <Button type="default" @click="addModal=false">Close</Button>
-                        <Button type="primary" @click="addItem" :disabled="isAdding" :loading="isAdding">{{isAdding ? 'Adding..' : 'Add Account'}}</Button>
+                        <Button type="primary" @click="addItem" :disabled="isAdding" :loading="isAdding">{{isAdding ? 'Adding..' : 'Add'}}</Button>
                     </div>
 
                 </Modal>
@@ -125,7 +127,7 @@
             return {
                 data : {
                     account_id: '',
-                    sub_account_id: '',
+                    sub_account_id: [],
                 },
                 addModal : false,
                 editModal : false,
@@ -133,7 +135,7 @@
                 setData : [],
                 editData : {
                     account_id: '',
-                    sub_account_id: '',
+                    sub_account_id: [],
                 },
                 index : -1,
                 showDeleteModal: false,
@@ -155,8 +157,7 @@
         methods : {
             async addItem(){
                 if(this.data.account_id =='') return this.e('Account is required')
-                if(this.data.sub_account_id =='') return this.e('Sub Account is required')
-
+                if(this.data.sub_account_id == '') return this.e('Sub Account is required')
                 const res = await this.callApi('post', 'api/account_sub_account/store', this.data)
                 if(res.status===200){
                     const setItemData = res.data.data;
@@ -164,7 +165,7 @@
                     this.s('Items has been added successfully!');
                     this.addModal = false;
                     this.data.account_id = '';
-                    this.data.sub_account_id = '';
+                    this.data.sub_account_id = [];
                     window.location.reload();
                 }else{
                     if(res.status==422){

@@ -10,10 +10,12 @@ class PartyAccountTransaction extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'party_transaction_id',
+        'party_id',
+        'transaction_id',
         'account_id',
+        'sub_account_id',
         'dr',
-        'cr'
+        'amount'
     ];
 
     /**

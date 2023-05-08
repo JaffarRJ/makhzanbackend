@@ -17,8 +17,8 @@ class CreatePartyAccountTransactionsTable extends Migration
             $table->id();
             $table->bigInteger('party_transaction_id')->unsigned();
             $table->bigInteger('account_id')->unsigned();
-            $table->integer('dr')->unsigned();
-            $table->integer('cr')->unsigned();
+            $table->integer('dr')->default(0)->unsigned();
+            $table->tinyInteger('amount')->default(0);
             $table->boolean('is_active')->default(ACTIVE_RECORD);
             $table->boolean('is_show')->default(HIDE_RECORD);
             $table->timestamps();

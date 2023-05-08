@@ -25,6 +25,7 @@ class StoreRequest extends BaseRequest
     {
         return [
             'party_id' => 'required|exists:parties,id',
+            'transaction_id' => 'required|array',
             'transaction_id' => 'required|exists:transactions,id',
         ];
     }

@@ -121,7 +121,7 @@ class AccountSubAccountController extends Controller
      *          required=true,
      *           in="query",
      *          @OA\Schema(
-     *              type="string"
+     *              type="object"
      *          )
      *      ),
      *      @OA\Response(
@@ -140,11 +140,16 @@ class AccountSubAccountController extends Controller
         try {
             DB::beginTransaction();
             $inputs = $request->all();
-            $model = $this->model->newInstance();
-            $model->fill($inputs);
-            if (!$model->save()) {
-                DB::rollback();
-                return error(GENERAL_ERROR_MESSAGE, ERROR_400);
+            $data = [];
+            $data['account_id'] = $inputs['account_id'];
+            foreach($inputs['sub_account_id'] as $subAccountId) {
+                $model = $this->model->newInstance();
+                $data['sub_account_id'] = $subAccountId;
+                $model->fill($data);
+                if (!$model->save()) {
+                    DB::rollback();
+                    return error(GENERAL_ERROR_MESSAGE, ERROR_400);
+                }
             }
             DB::commit();
             return successWithData(GENERAL_SUCCESS_MESSAGE, $model->fresh());

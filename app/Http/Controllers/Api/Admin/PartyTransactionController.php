@@ -141,11 +141,16 @@ class PartyTransactionController extends Controller
         try {
             DB::beginTransaction();
             $inputs = $request->all();
-            $model = $this->model->newInstance();
-            $model->fill($inputs);
-            if (!$model->save()) {
-                DB::rollback();
-                return error(GENERAL_ERROR_MESSAGE, ERROR_400);
+            $data = [];
+            $data['party_id'] = $inputs['party_id'];
+            foreach($inputs['transaction_id'] as $transactionId) {
+                $model = $this->model->newInstance();
+                $data['transaction_id'] = $transactionId;
+                $model->fill($data);
+                if (!$model->save()) {
+                    DB::rollback();
+                    return error(GENERAL_ERROR_MESSAGE, ERROR_400);
+                }
             }
             DB::commit();
             return successWithData(GENERAL_SUCCESS_MESSAGE, $model->fresh());

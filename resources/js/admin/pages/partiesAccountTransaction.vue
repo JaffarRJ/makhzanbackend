@@ -43,8 +43,16 @@
                 <!-- adding modal -->
                 <Modal v-model="addModal" title="Add Party Account Transaction" :mask-closable="false" :closable="false">
                     <div class="space">
-                        <Select v-model="data.party_transaction_id"  placeholder="Select Party Transaction">
-                            <Option :value="r.id" v-for="(r, i) in partyTransaction" :key="i" v-if="partyTransaction.length">{{r.party.name}}-{{r.transaction.name}}</Option>
+                        <select v-model="data.party_id" v-on:change="getTransactions" placeholder="Select Party" class="form-control">
+                            <option  :value="r.id" v-for="(r, i) in party" :key="i" v-if="party.length">{{r.name}}</option>
+                        </select>
+<!--                        <Select v-model="data.party_id"  placeholder="Select Party"  @change="getTransactions(this.value)">-->
+<!--                            <Option :value="r.id" v-for="(r, i) in party" :key="i" v-if="party.length"  @change="getTransactions(this.value)">{{r.name}}</Option>-->
+<!--                        </Select>-->
+                    </div>
+                    <div class="space">
+                        <Select v-model="data.transaction_id"  placeholder="Select Transaction">
+                            <Option :value="r.id" v-for="(r, i) in party" :key="i" v-if="party.length">{{r.name}}</Option>
                         </Select>
                     </div>
                     <div class="space">
@@ -53,12 +61,17 @@
                         </Select>
                     </div>
                     <div class="space">
-                        <Input type="text" v-model="data.dr" placeholder="Debit" autocomplete="off" />
+                        <Input type="text" v-model="data.amount" placeholder="Amount" autocomplete="off" />
                     </div>
-                    <div class="space">
-                        <Input type="text" v-model="data.cr" placeholder="Credit" autocomplete="off" />
+                    <div class="row">
+                        <div class="col-2">
+                            <input type="radio" :value="1" v-model="data.dr">Credit
+                        </div>
+                        <div class="col-2">
+                        <input type="radio" :value="2" v-model="data.dr">Debit
+                        </div>
                     </div>
-                    <div slot="footer">
+                    <div slot="footer" style="margin-top:20px">
                         <Button type="default" @click="addModal=false">Close</Button>
                         <Button type="primary" @click="addItem" :disabled="isAdding" :loading="isAdding">{{isAdding ? 'Adding..' : 'Add  Party Transaction'}}</Button>
                     </div>
@@ -66,8 +79,8 @@
                 <!-- editing modal -->
                 <Modal v-model="editModal" title="Edit Role" :mask-closable="false" :closable="false">
                     <div class="space">
-                        <Select v-model="editData.party_transaction_id"  placeholder="Select Party Transaction">
-                            <Option :value="r.id" v-for="(r, i) in partyTransaction" :key="i" v-if="partyTransaction.length">{{r.party.name}}-{{r.transaction.name}}</Option>
+                        <Select v-model="editData.party_id"  placeholder="Select Party Transaction">
+                            <Option :value="r.id" v-for="(r, i) in party" :key="i" v-if="party.length">{{r.name}}</Option>
                         </Select>
                     </div>
                     <div class="space">
@@ -76,10 +89,18 @@
                         </Select>
                     </div>
                     <div class="space">
-                        <Input type="text" v-model="editData.dr" placeholder="Debit" autocomplete="off" />
+                        <Input type="text" v-model="editData.amount" placeholder="Debit" autocomplete="off" />
                     </div>
                     <div class="space">
-                        <Input type="text" v-model="editData.cr" placeholder="Credit" autocomplete="off" />
+                        <div class="row">
+                            <div class="col-3">
+                                <input type="radio" :value="1" v-model="data.dr">Debit
+                            </div>
+                                <div class="col-3">
+
+                                <input type="radio" :value="2" v-model="data.dr">Credit
+                            </div>
+                        </div>
                     </div>
                     <div slot="footer">
                         <Button type="default" @click="editModal=false">Close</Button>
@@ -139,20 +160,20 @@
         data(){
             return {
                 data : {
-                    party_transaction_id: '',
+                    party_id: '',
                     account_id: '',
                     dr: '',
-                    cr: '',
+                    amount: '',
                 },
                 addModal : false,
                 editModal : false,
                 isAdding : false,
                 setData : [],
                 editData : {
-                    party_transaction_id: '',
+                    party_id: '',
                     account_id: '',
                     dr: '',
-                    cr: ''
+                    amount: ''
                 },
                 index : -1,
                 showDeleteModal: false,
@@ -165,18 +186,42 @@
                 statusItem: {},
                 deletingIndex: -1,
                 websiteSettings: [],
-                partyTransaction: [],
+                party: [],
                 accounts: [],
 
             }
         },
 
         methods : {
+            async getTransactions() {
+                // Here, you can perform any action you need based on the updated value of selectedOption
+                console.log('Selected option:', this.data.party_id);
+                    if(this.data.party_id =='') return this.e('Please select Party')
+
+                    const res = await this.callApi('post', 'api/party_account_transaction/store', this.data.party_id)
+                    if(res.status===200){
+                        const setItemData = res.data.data;
+                        // this.setData.unshift(setItemData);
+                        this.s('Items has been added successfully!');
+                        this.addModal = false;
+                        this.data.party_id = '';
+                        this.data.account_id = '';
+                        window.location.reload();
+                    }else{
+                        if(res.status==422){
+                            for(let i in res.data.errors){
+                                this.e(res.data.errors[i][0])
+                            }
+                        }else{
+                            this.swr()
+                        }
+                    }
+            },
             async addItem(){
-                if(this.data.party_transaction_id =='') return this.e('Party Transaction is required')
+                if(this.data.party_id =='') return this.e('Party Transaction is required')
                 if(this.data.account_id =='') return this.e('Account is required')
                 if(this.data.dr =='') return this.e('Debit is required')
-                if(this.data.cr =='') return this.e('Credit is required')
+                if(this.data.amount =='') return this.e('Credit is required')
 
                 const res = await this.callApi('post', 'api/party_account_transaction/store', this.data)
                 if(res.status===200){
@@ -184,7 +229,7 @@
                     // this.setData.unshift(setItemData);
                     this.s('Items has been added successfully!');
                     this.addModal = false;
-                    this.data.party_transaction_id = '';
+                    this.data.party_id = '';
                     this.data.account_id = '';
                     window.location.reload();
                 }else{
@@ -198,10 +243,10 @@
                 }
             },
             async editItemBtn(){
-                if(this.editData.party_transaction_id =='') return this.e('Party Transaction is required')
+                if(this.editData.party_id =='') return this.e('Party Transaction is required')
                 if(this.editData.account_id =='') return this.e('Account is required')
-                if(this.editData.dr =='') return this.e('Debit is required')
-                if(this.editData.cr =='') return this.e('Credit is required')
+                if(this.editData.dr =='') return this.e('Please check Debit or credit is required')
+                if(this.editData.amount =='') return this.e('Amount is required')
 
                 const res = await this.callApi('post', 'api/party_account_transaction/update', this.editData)
                 if(res.status===200){
@@ -221,7 +266,7 @@
             showEditModal(items, index){
                 let obj = {
                     id : items.id,
-                    party_transaction_id : items.party_transaction_id,
+                    party_id : items.party_id,
                     account_id : items.account_id,
                     dr : items.dr,
                     cr : items.cr,
@@ -286,12 +331,10 @@
                 this.showItem = items,
                     this.showShowModal =  true
             }
-        },
-
-        async created(){
-            const [res, resPartyTransaction,resAccount] = await Promise.all([
+        }, async created(){
+            const [res, resParty,resAccount] = await Promise.all([
                 this.callApi('get', 'api/party_account_transaction/listing'),
-                this.callApi('get', 'api/party_transaction/listing'),
+                this.callApi('get', 'api/party/listing'),
                 this.callApi('get', 'api/account/listing'),
             ])
             if(res.status==200){
@@ -300,10 +343,10 @@
             }else{
                 this.swr()
             }
-            if(resPartyTransaction.status==200){
-                this.partyTransaction = resPartyTransaction.data.data.data;
+            if(resParty.status==200){
+                this.party = resParty.data.data.data;
                 console.log("IT JTEEE");
-                console.log(this.partyTransaction);
+                console.log(this.party);
             }else{
                 this.swr()
             }

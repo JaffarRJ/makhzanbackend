@@ -6269,3 +6269,9 @@ p {
 .center_button{
   margin-top: 10px;
 }
+.ivu-modal-footer{
+    display: none;
+}
+select.form-control:not([size]):not([multiple]) {
+    height: auto;
+}

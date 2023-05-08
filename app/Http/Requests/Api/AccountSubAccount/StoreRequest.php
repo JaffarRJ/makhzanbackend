@@ -25,7 +25,8 @@ class StoreRequest extends BaseRequest
     {
         return [
             'account_id' => 'required|exists:accounts,id',
-            'sub_account_id' => 'required|exists:sub_accounts,id'
+            'sub_account_id' => 'required|array',
+            'sub_account_id.*' => 'required|exists:sub_accounts,id',
         ];
     }
 }
