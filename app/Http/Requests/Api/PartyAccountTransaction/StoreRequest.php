@@ -24,10 +24,12 @@ class StoreRequest extends BaseRequest
     public function rules()
     {
         return [
-            'party_transaction_id' => 'required|exists:party_transactions,id',
+            'party_id' => 'required|exists:parties,id',
+            'transaction_id' => 'required|exists:transactions,id',
             'account_id' => 'required|exists:accounts,id',
-//            'dr' => 'required',
-//            'cr' => 'required'
+            'sub_account_id' => 'required|exists:sub_accounts,id',
+            'amount' => 'required',
+            'dr' => 'required'
         ];
     }
 }

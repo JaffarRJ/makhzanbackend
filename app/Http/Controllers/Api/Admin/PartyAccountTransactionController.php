@@ -47,9 +47,7 @@ class PartyAccountTransactionController extends Controller
     public function listing(ListingRequest $request)
     {
         $inputs = $request->all();
-        $query = $this->model->newQuery()->with(['account', 'partyTransaction' => function($q){
-            $q->with(['transaction', 'party']);
-        }]);
+        $query = $this->model->newQuery()->with(['party', 'transaction','account','sub_account']);
         if (!empty($inputs['search'])) {
             $query->where(function ($q) use ($inputs) {
                 searchTable($q, $inputs['search'], ['name']);
@@ -246,7 +244,7 @@ class PartyAccountTransactionController extends Controller
      *     )
      */
 
-    public function update(UpdateRequest $request)
+    public function update(UpxdateRequest $request)
     {
         try {
             DB::beginTransaction();

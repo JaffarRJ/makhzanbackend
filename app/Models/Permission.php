@@ -10,6 +10,7 @@ class Permission extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'tab_name',
         'name',
         'route'
     ];
@@ -19,7 +20,7 @@ class Permission extends Model
      *
      * @var array
      */
-    protected $hidden = ['id'];
+    protected $hidden = [];
 
     /**
      * Get all of the comments for the Permission

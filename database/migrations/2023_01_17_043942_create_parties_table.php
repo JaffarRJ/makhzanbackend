@@ -17,6 +17,7 @@ class CreatePartiesTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('cnic');
+            $table->string('phone');
             $table->text('address');
             $table->boolean('is_active')->default(ACTIVE_RECORD);
             $table->boolean('is_show')->default(HIDE_RECORD);

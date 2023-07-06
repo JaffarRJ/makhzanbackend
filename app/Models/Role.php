@@ -11,7 +11,8 @@ class Role extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'name'
+        'name',
+        'permissions'
     ];
     /**
      * Get all of the users for the Role

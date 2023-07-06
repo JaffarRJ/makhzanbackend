@@ -44,6 +44,7 @@ Route::prefix('auth')->group(function () {
     });
 });
 
+//Route::middleware('checkPermission')->group(function () {
 //Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
 //Route::prefix('admin')->group(function () {
     Route::prefix('profile')->group(function () {
@@ -150,6 +151,7 @@ Route::prefix('auth')->group(function () {
             Route::post('store', 'store');
             Route::post('update', 'update');
             Route::post('delete', 'delete');
+            Route::post('assignRole', 'assignRole');
             Route::post('updateIsActive', 'updateIsActive');
             Route::post('updateIsShow', 'updateIsShow');
         });
@@ -164,6 +166,6 @@ Route::prefix('auth')->group(function () {
             Route::post('updateIsActive', 'updateIsActive');
             Route::post('updateIsShow', 'updateIsShow');
         });
-    });
-//});
+//    });
+});
 

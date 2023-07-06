@@ -174,6 +174,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Tohidplus\Translation\TranslationServiceProvider::class,
 
     ],
 
@@ -228,6 +229,7 @@ return [
         'Str' => Illuminate\Support\Str::class,
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
+        'checkPermission' => \App\Http\Middleware\CheckPermissions::class,
         'View' => Illuminate\Support\Facades\View::class,
 
     ],

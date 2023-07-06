@@ -91,7 +91,7 @@ class AccountController extends Controller
     {
         $inputs = $request->all();
         $data = $this->model->newQuery()
-            ->whereId($inputs['id'])->first();
+            ->whereId($inputs['id'])->with('sub_accounts')->first();
         return successWithData(GENERAL_FETCHED_MESSAGE, $data);
     }
 

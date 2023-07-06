@@ -266,7 +266,6 @@
                 this.callApi('get', 'api/role/listing'),
                 // this.callApi('get', 'api/role/role/listing')
             ])
-            // const res = await this.callApi('get', 'api/items/listing')
             if(res.status==200){
                 console.log()
                 this.setData = res.data.data.data;

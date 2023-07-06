@@ -40,17 +40,18 @@
                 <Modal v-model="addModal" title="Add Party" :mask-closable="false" :closable="false">
                     <div class="space">
                         <Select v-model="data.party_id"  placeholder="Select admin type">
-                            <Option :value="r.id" v-for="(r, i) in accounts" :key="i" v-if="accounts.length">{{r.name}}</Option>
+                            <Option :value="r.id" v-for="(r, i) in parties" :key="i" v-if="parties.length">{{r.name}}</Option>
                         </Select>
                     </div>
                     <div class="space">
                         <div class="row">
-                            <div class="col-3"  v-for="(r, i) in subAccounts" :key="i" v-if="subAccounts.length">
-                                <input type="checkbox" :value="r.id"  v-model="data.transaction_id">{{r.name}}
+                            <div class="col-3"  v-for="(r, i) in transactions" :key="i" v-if="transactions.length">
+                                <input type="checkbox" :value="r.id" v-model="data.transaction_id"/>
+                                {{r.name}}
                             </div>
                         </div>
 <!--                        <Select v-model="data.transaction_id"  placeholder="Select admin type">-->
-<!--                            <Option :value="r.id" v-for="(r, i) in subAccounts" :key="i" v-if="subAccounts.length">{{r.name}}</Option>-->
+<!--                            <Option :value="r.id" v-for="(r, i) in transactions" :key="i" v-if="transactions.length">{{r.name}}</Option>-->
 <!--                        </Select>-->
                     </div>
                     <div slot="footer">
@@ -63,12 +64,12 @@
                 <Modal v-model="editModal" title="Edit Role" :mask-closable="false" :closable="false">
                     <div class="space">
                         <Select v-model="editData.party_id"  placeholder="Select Party">
-                            <Option :value="r.id" v-for="(r, i) in accounts" :key="i" v-if="accounts.length">{{r.name}}</Option>
+                            <Option :value="r.id" v-for="(r, i) in parties" :key="i" v-if="parties.length">{{r.name}}</Option>
                         </Select>
                     </div>
                     <div class="space">
                         <Select v-model="editData.transaction_id"  placeholder="Select Transaction">
-                            <Option :value="r.id" v-for="(r, i) in subAccounts" :key="i" v-if="subAccounts.length">{{r.name}}</Option>
+                            <Option :value="r.id" v-for="(r, i) in transactions" :key="i" v-if="transactions.length">{{r.name}}</Option>
                         </Select>
                     </div>
                     <div slot="footer">
@@ -151,8 +152,8 @@
                 statusItem: {},
                 deletingIndex: -1,
                 websiteSettings: [],
-                accounts: [],
-                subAccounts: [],
+                parties: [],
+                transactions: [],
 
             }
         },
@@ -268,24 +269,23 @@
         },
 
         async created(){
-            const [res, resAccount,resSubAccount] = await Promise.all([
+            const [res, resParty,resTransaction] = await Promise.all([
                 this.callApi('get', 'api/party_transaction/listing'),
                 this.callApi('get', 'api/party/listing'),
                 this.callApi('get', 'api/transaction/listing'),
             ])
             if(res.status==200){
-                console.log(res.data.data.data);
                 this.setData = res.data.data.data;
             }else{
                 this.swr()
             }
-            if(resAccount.status==200){
-                this.accounts = resAccount.data.data.data;
+            if(resParty.status==200){
+                this.parties = resParty.data.data.data;
             }else{
                 this.swr()
             }
-            if(resSubAccount.status==200){
-                this.subAccounts = resSubAccount.data.data.data;
+            if(resTransaction.status==200){
+                this.transactions = resTransaction.data.data.data;
             }else{
                 this.swr()
             }

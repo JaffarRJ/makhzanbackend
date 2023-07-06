@@ -10,17 +10,19 @@ use App\Http\Requests\Api\AccountSubAccount\StoreRequest;
 use App\Http\Requests\Api\AccountSubAccount\UpdateIsActiveRequest;
 use App\Http\Requests\Api\AccountSubAccount\UpdateIsShowRequest;
 use App\Http\Requests\Api\AccountSubAccount\UpdateRequest;
+use App\Models\Account;
 use App\Models\AccountSubAccount;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 class AccountSubAccountController extends Controller
 {
-    private $pagination, $model;
+    private $pagination, $model, $accountModel;
 
     public function __construct()
     {
         $this->model = new AccountSubAccount();
+        $this->accountModel = new Account();
         $this->pagination = request('page_size') ? request('page_size') : PAGINATE;
     }
     /**
@@ -142,6 +144,10 @@ class AccountSubAccountController extends Controller
             $inputs = $request->all();
             $data = [];
             $data['account_id'] = $inputs['account_id'];
+            if($this->model->whereAccountId($inputs['account_id'])->count() > 0)
+            {
+                $this->model->whereAccountId($inputs['account_id'])->delete();
+            }
             foreach($inputs['sub_account_id'] as $subAccountId) {
                 $model = $this->model->newInstance();
                 $data['sub_account_id'] = $subAccountId;

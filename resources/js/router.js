@@ -5,6 +5,7 @@ import tags from "./components/pages/tags.vue";
 import adminusers from "./admin/pages/adminusers.vue";
 import rolePermissions from "./admin/pages/rolePermissions.vue";
 import roles from "./admin/pages/roles.vue";
+import assignRole from "./admin/pages/assignRole.vue";
 import permissions from "./admin/pages/permissions.vue";
 import partiesAccountTransaction from "./admin/pages/partiesAccountTransaction.vue";
 import partiesTransaction from "./admin/pages/partiesTransaction.vue";
@@ -13,12 +14,18 @@ import parties from "./admin/pages/parties.vue";
 import accountSubAccounts from "./admin/pages/accountSubAccounts.vue";
 import subAccounts from "./admin/pages/subAccounts.vue";
 import accounts from "./admin/pages/accounts.vue";
+import login from "./admin/pages/login.vue";
 
 const routes = [
     {
         path: "/",
         name: "home",
         component: home,
+    },
+    {
+        path: "/login",
+        name: "login",
+        component: login,
     },{
         path: "/tags",
         name: "tags",
@@ -77,6 +84,11 @@ const routes = [
         path: '/roles',
         component: roles,
         name: 'roles'
+
+    },{
+        path: '/assignRole',
+        component: assignRole,
+        name: 'assignRole'
 
     },{
         path: '/permissions',

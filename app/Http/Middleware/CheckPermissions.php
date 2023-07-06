@@ -20,39 +20,16 @@ class CheckPermissions
      */
     public function handle(Request $request, Closure $next)
     {
-        $path = head(explode('/', last(explode('/api/', $request->getRequestUri()))));
-        $lastPath = last(explode('/', last(explode('/api/', $request->getRequestUri()))));
-
-        if (is_string($path)) {
-            if ($path == 'settings') {
-                return $next($request);
-            }
-            $rolPermissions = Auth::User()->role;
-            if (count($rolPermissions->permissions)) {
-
-                $permission = Permission::whereModule($path)->first();
-                if ($permission) {
-                    $action = $this->checkRouteAction($lastPath);
-
-                    if (RolePermission::wherePermissionId($permission->id)->whereRoleId($rolPermissions->id)->whereAction($action)->exists()) {
-                        return $next($request);
-                    } else return response()->json(['success' => false, 'message' => 'Access Denied'], ERROR_403);
-                } else return response()->json(['success' => false, 'message' => 'Access Denied'], ERROR_403);
-            } else return response()->json(['success' => false, 'message' => 'Access Denied'], ERROR_403);
+        if($request->path() == '/login'){
+            return $next($request);
         }
-        return response()->json(['success' => false, 'message' => 'Access Denied'], ERROR_403);
-    }
-
-
-
-    private function checkRouteAction($lastPath)
-    {
-        $writeRequests = ['store', 'update', 'delete', 'change-status', 'update-multiple', 'change-status-to-factory', 'update-status', 'bulk-update-status', 'reorder', 'download', 'create-sale-invoice', 'retry-create-sage-invoice', 'reshuffle', 'update-order', 'download-pdf'];
-        $readRequests = ['listing', 'products', 'stats', 'customer-total-listing', 'show', 'work-order-listing', 'charts', 'ticket-no', 'details', 'history', 'widgets', 'search-from-sage', 'fetch-from-sage'];
-        if (in_array($lastPath, $writeRequests)) {
-            return ROLE_ACTION_WRITE;
-        } else if (in_array($lastPath, $readRequests)) {
-            return ROLE_ACTION_READ;
+        if(!Auth::check()){
+            return response()->json(['success' => false, 'message' => 'Access Denied'], ERROR_500);
         }
+        $user = Auth::user();
+        if($user->role->name == 0){
+            return response()->json(['success' => false, 'message' => 'Access Denied'], ERROR_500);
+        }
+        return $next($request);
     }
 }

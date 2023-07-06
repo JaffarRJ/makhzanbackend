@@ -25,7 +25,9 @@ class UpdateRequest extends BaseRequest
     {
         return [
             'id' => 'required|exists:permissions,id',
-            'name' => 'required'
+            'tab_name' => 'required',
+            'name' => 'required',
+            'route' => 'required'
         ];
     }
 }

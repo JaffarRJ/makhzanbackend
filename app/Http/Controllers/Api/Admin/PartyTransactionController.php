@@ -143,6 +143,10 @@ class PartyTransactionController extends Controller
             $inputs = $request->all();
             $data = [];
             $data['party_id'] = $inputs['party_id'];
+            if($this->model->wherePartyId($inputs['party_id'])->count() > 0)
+            {
+                $this->model->wherePartyId($inputs['party_id'])->delete();
+            }
             foreach($inputs['transaction_id'] as $transactionId) {
                 $model = $this->model->newInstance();
                 $data['transaction_id'] = $transactionId;

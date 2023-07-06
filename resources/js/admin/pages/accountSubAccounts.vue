@@ -46,7 +46,8 @@
                     <div class="space">
                         <div class="row">
                             <div class="col-3"  v-for="(r, i) in subAccounts" :key="i" v-if="subAccounts.length">
-                            <input type="checkbox" :value="r.id" v-model="data.sub_account_id">{{r.name}}
+                                <input type="checkbox" :value="r.id" v-model="data.sub_account_id" />
+                                {{r.name}}
                             </div>
                         </div>
                     </div>
@@ -280,7 +281,7 @@
             }else{
                 this.swr()
             }
-            if(resSubAccount.status==200){
+            if(resSubAccount.status == 200){
                 this.subAccounts = resSubAccount.data.data.data;
             }else{
                 this.swr()

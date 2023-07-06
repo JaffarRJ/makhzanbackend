@@ -1,5 +1,4 @@
 <template>
-    <div>
         <div class="container">
             <div class="_1adminOverveiw_table_recent _box_shadow _border_radious _mar_b30 _p20 col-md-4">
                   <div class="login_header">
@@ -16,7 +15,6 @@
                     </div>
             </div>
         </div>
-    </div>
 </template>
 
 
@@ -25,23 +23,28 @@ export default {
     data(){
         return {
             data : {
-                email : '', 
+                email : '',
                 password: ''
-            }, 
-            isLogging: false, 
+            },
+            // setinp : [],
+            isLogging: false,
         }
-    }, 
+    },
 
     methods : {
         async login(){
             if(this.data.email.trim()=='') return this.e('Email is required')
             if(this.data.password.trim()=='') return this.e('Password is required')
             if(this.data.password.length < 6) return this.e('Incorrect login details')
-            this.isLogging = true
-            const res = await this.callApi('post', 'app/admin_login', this.data)
+            this.isLogging = true;
+            const res = await this.callApi('post', 'api/auth/login', {'email':this.data.email,'password':this.data.password})
             if(res.status===200){
-                this.s(res.data.msg)
-                window.location = '/'
+                console.log("FDSA")
+                console.log(res.data.data);
+                let setData = res.data.data;
+                this.s(res.data.message);
+                localStorage.setItem('storedData',setData);
+                window.location = '/';
             }else{
                 if(res.status===401){
                     this.i(res.data.msg)
@@ -77,4 +80,5 @@ export default {
         text-align: center;
         margin-bottom: 25px;
     }
+
 </style>

@@ -9,9 +9,13 @@
 
     </head>
     <body class="antialiased">
-        <div id="app">
-            <mainapp></mainapp>
-        </div>
+    <div id="app">
+        @if(Auth::check())
+            <mainapp :setPermission="<?=$permission?>"></mainapp>
+        @else
+            <mainapp :setPermission="false"></mainapp>
+        @endif
+    </div>
     </body>
 <script type="text/javascript" src="{{mix('/js/app.js')}}"></script>
 </html>

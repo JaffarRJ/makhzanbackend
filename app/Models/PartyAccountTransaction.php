@@ -14,8 +14,8 @@ class PartyAccountTransaction extends Model
         'transaction_id',
         'account_id',
         'sub_account_id',
-        'dr',
-        'amount'
+        'amount',
+        'dr'
     ];
 
     /**
@@ -23,9 +23,13 @@ class PartyAccountTransaction extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function partyTransaction(): BelongsTo
+    public function party(): BelongsTo
     {
-        return $this->belongsTo(PartyTransaction::class, 'party_transaction_id', 'id');
+        return $this->belongsTo(Party::class, 'party_id', 'id');
+    }
+    public function transaction(): BelongsTo
+    {
+        return $this->belongsTo(Transaction::class, 'transaction_id', 'id');
     }
     /**
      * The transaction that belong to the Transaction
@@ -35,5 +39,9 @@ class PartyAccountTransaction extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class, 'account_id', 'id');
+    }
+    public function sub_account(): BelongsTo
+    {
+        return $this->belongsTo(SubAccount::class, 'sub_account_id', 'id');
     }
 }

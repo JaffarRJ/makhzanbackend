@@ -93,7 +93,7 @@ class PartyController extends Controller
     {
         $inputs = $request->all();
         $data = $this->model->newQuery()
-            ->whereId($inputs['id'])->first();
+            ->whereId($inputs['id'])->with('transactions')->first();
         return successWithData(GENERAL_FETCHED_MESSAGE, $data);
     }
 

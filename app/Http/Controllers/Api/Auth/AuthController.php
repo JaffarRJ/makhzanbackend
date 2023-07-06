@@ -13,12 +13,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Models\Role;
 use Exception;
 use Illuminate\Database\QueryException;
 
 class AuthController extends Controller
 {
     private $user, $notificationDevice;
+
     public function __construct()
     {
         $this->user = new User();
@@ -32,70 +34,64 @@ class AuthController extends Controller
      *      summary="authentication",
      *      description="",
      *      @OA\Parameter(
-    *          name="email",
-    *          description="Email",
-    *          required=true,
-    *           in="query",
-    *          @OA\Schema(
-    *              type="string"
-    *          )
-    *      ),
-    *      @OA\Parameter(
-    *          name="password",
-    *          description="Password",
-    *          required=true,
-    *         in="query",
-    *          @OA\Schema(
-    *              type="string"
-    *          )
-    *      ),
-    *      @OA\Response(
-    *          response=200,
-    *          description="Successful operation",
-    *       ),
-    *      @OA\Response(
-    *          response=403,
-    *          description="Forbidden"
-    *      )
-    *     )
-    */
+     *          name="email",
+     *          description="Email",
+     *          required=true,
+     *           in="query",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="password",
+     *          description="Password",
+     *          required=true,
+     *         in="query",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      )
+     *     )
+     */
     public function login(LoginRequest $request)
     {
         try {
             DB::beginTransaction();
             $inputs = $request->all();
-            if ($user  = $this->user->newQuery()->where('email', $inputs['email'])->first()) {
+            if ($user = $this->user->newQuery()->where('email', $inputs['email'])->first()) {
                 if (Hash::check($inputs['password'], $user->password)) {
                     Auth::login($user);
-                    $this->user = Auth::user();
-                    $toReturnUser = Auth::user();
-                    $token = $toReturnUser->createToken('bearer_token');
-                    if ($user->is_email_verified == 0) {
-                        $user->verification_code = generateVerificationCode();
-                        dispatch(new SendMailJob($user->email, 'Email Verification', ['verificationCode' => $user->verification_code], 'emails.email-verification'));
-                        if ($user->save()) {
-                            $toReturnUser->token = $token->plainTextToken;
-                            DB::commit();
-                            return successWithData(__('auth.notVerified'), $toReturnUser);
-                        }
-                    }
+                    $user = Auth::user();
+                    $getRole = Role::where('id', $user['role_id'])->first();
+                    if (!empty($getRole) && !empty($getRole['permissions'])) {
+                        $permission = $getRole['permissions'];
 
-
-                    if(!empty($inputs['uuid']) && !empty($inputs['token']) && !empty($inputs['type']))
-                    {
-                        if (!$notificationDevice = $this->notificationDevice->newQuery()->where('uuid', $inputs['uuid'])->first()) {
-                            $notificationDevice = $this->notificationDevice->newInstance();
-                            $notificationDevice->user_id = Auth::id();
-                        }
-                        $notificationDevice->fill($inputs);
-                        if (!$notificationDevice->save()) {
-                            DB::rollBack();
-                            return error(GENERAL_ERROR_MESSAGE, ERROR_400);
-                        }
+//                         return view('welcome', ['permission' => $permission]);
+//                        return View::make('welcome', compact('permission'));
+                        return successWithData(GENERAL_LOGIN_MESSAGE, $permission);
+//                        $this->checkForPermission($getRole, $request);
+                    } else {
+                        return response()->json(['success' => false, 'message' => 'Access Denied'], ERROR_500);
+                        return view('/login');
                     }
-                    $toReturnUser->token = $token->plainTextToken;
-                    DB::commit();
-                    return successWithData(__('auth.loggedIn'), $toReturnUser);
+                    if (!Auth::check() && $request->path() != 'login') {
+                        return response()->json(['success' => false, 'message' => 'Access Denied'], ERROR_500);
+                        return view('/login');
+                    }
+                    if (!Auth::check() && $request->path() == 'login') {
+                        return response()->json(['success' => false, 'message' => 'Access Denied'], ERROR_500);
+                        return view('/login');
+                        return view('/login');
+
+                    }
                 }
             }
             DB::rollback();
@@ -110,26 +106,22 @@ class AuthController extends Controller
     }
 
 
-
     public function logout(LogoutRequest $request)
     {
         try {
             DB::beginTransaction();
             $inputs = $request->all();
             $notificationDevice = $this->notificationDevice->newQuery()->where('uuid', $inputs['uuid'])->first();
-            if(!$notificationDevice)
-            {
+            if (!$notificationDevice) {
                 DB::rollBack();
                 return error(GENERAL_ERROR_MESSAGE, ERROR_400);
             }
-            if(!$notificationDevice->delete())
-            {
+            if (!$notificationDevice->delete()) {
                 DB::rollBack();
                 return error(GENERAL_ERROR_MESSAGE, ERROR_400);
             }
             $token = $request->header('Authorization');
-            if($token)
-            {
+            if ($token) {
                 JWTAuth::invalidate($token);
             }
             DB::commit();
@@ -144,6 +136,31 @@ class AuthController extends Controller
         }
 
     }
+
+//    public function checkForPermission($role, $request)
+//    {
+//        $permission = json_decode($role['permissions']);
+//        $hasPermission = false;
+//        if (!$permission) {
+//            return view('welcome');
+//        }
+//        foreach ($permission as $p) {
+//            if ($p->name == $request->path()) {
+//                if ($p->read) {
+//                    $hasPermission = true;
+//                }
+//            }
+//        }
+//        echo '<pre>';
+//        print_r($hasPermission);
+//        exit;
+//        if ($hasPermission) {
+//            return view('welcome');
+//        }
+//
+//        return view('welcome');
+//        return view('notfound');
+//    }
 
 
 }

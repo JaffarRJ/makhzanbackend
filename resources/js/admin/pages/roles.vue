@@ -259,8 +259,8 @@
             ])
             // const res = await this.callApi('get', 'api/items/listing')
             if(res.status==200){
-                console.log()
                 this.setData = res.data.data.data;
+                console.log(this.setData);
             }else{
                 this.swr()
             }

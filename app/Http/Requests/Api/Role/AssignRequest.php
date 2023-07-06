@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\Permission;
+namespace App\Http\Requests\Api\Role;
 
 use App\Http\Requests\BaseRequest;
 
-class StoreRequest extends BaseRequest
+class AssignRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,9 +24,8 @@ class StoreRequest extends BaseRequest
     public function rules()
     {
         return [
-            'name' => 'required',
-            'tab_name' => 'required',
-            'route' => 'required',
+            'permissions' => 'required',
+            'id' => 'required',
         ];
     }
 }

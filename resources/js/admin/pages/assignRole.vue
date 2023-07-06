@@ -5,9 +5,9 @@
         <!--~~~~~~~ TABLE ONE ~~~~~~~~~-->
         <div class="_1adminOverveiw_table_recent _box_shadow _border_radious _mar_b30 _p20">
           <p class="_title0">
-            Role Manangement
+            <h5 class="mb-3">Role Manangement</h5>
              <Select v-model="data.id"  placeholder="Select admin type" style="width:300px" @on-change="changeAdmin">
-                <Option :value="r.id" v-for="(r, i) in roles" :key="i" v-if="roles.length">{{r.roleName}}</Option>
+                <Option :value="r.id" v-for="(r, i) in roles" :key="i" v-if="roles.length">{{r.name}}</Option>
              </Select>
           </p>
 
@@ -24,8 +24,8 @@
               <!-- TABLE TITLE -->
 
               <!-- ITEMS -->
-              <tr v-for="(r, i) in resources" :key="i">
-                <td>{{r.resourceName}}</td>
+              <tr v-for="(r, i) in permissions" :key="i" v-if="permissions.length">
+                <td>{{r.name}}</td>
                 <td><Checkbox v-model="r.read"></Checkbox></td>
                 <td><Checkbox v-model="r.write"></Checkbox></td>
                 <td><Checkbox v-model="r.update"></Checkbox></td>
@@ -38,8 +38,6 @@
             </table>
           </div>
         </div>
-
-
       </div>
     </div>
   </div>
@@ -54,77 +52,62 @@ export default {
         id: null
       },
       isSending : false,
-
      roles: [],
-     resources: [
-          {resourceName: 'Home', read: false, write: false, update: false, delete: false, name: '/'},
-          {resourceName: 'Tags', read: false, write: false, update: false, delete: false, name: 'tags'},
-          {resourceName: 'Category', read: false, write: false, update: false, delete: false, name: 'category'},
-          {resourceName: 'Create blogs', read: false, write: false, update: false, delete: false, name: 'createBlog'},
-          {resourceName: 'Blogs', read: false, write: false, update: false, delete: false, name: 'blogs'},
-          {resourceName: 'Admin users', read: false, write: false, update: false, delete: false, name: 'adminusers'},
-          {resourceName: 'Role', read: false, write: false, update: false, delete: false, name: 'role'},
-          {resourceName: 'Assign Role', read: false, write: false, update: false, delete: false, name: 'assignRole'},
-
-      ],
-     defaultResourcesPermission: [
-          {resourceName: 'Home', read: false, write: false, update: false, delete: false, name: '/'},
-          {resourceName: 'Tags', read: false, write: false, update: false, delete: false, name: 'tags'},
-          {resourceName: 'Category', read: false, write: false, update: false, delete: false, name: 'category'},
-          {resourceName: 'Create blogs', read: false, write: false, update: false, delete: false, name: 'createBlog'},
-          {resourceName: 'Blogs', read: false, write: false, update: false, delete: false, name: 'blogs'},
-
-          {resourceName: 'Admin users', read: false, write: false, update: false, delete: false, name: 'adminusers'},
-          {resourceName: 'Role', read: false, write: false, update: false, delete: false, name: 'role'},
-          {resourceName: 'Assign Role', read: false, write: false, update: false, delete: false, name: 'assignRole'},
-
-      ],
+     permissions : [],
     };
   },
 
   methods: {
      async assignRoles(){
-         let data = JSON.stringify(this.resources)
-         const res = await this.callApi('post','app/assign_roles', {'permission' : data, id: this.data.id})
+         if(this.data.id == null) return this.e('Please select User Type');
+         let data = JSON.stringify(this.permissions);
+         console.log(data);
+
+         const res = await this.callApi('post','api/role/assignRole', {'permissions' : data, 'id': this.data.id})
          if(res.status==200){
             this.s('Role has been assigned successfully!')
-            let index = this.roles.findIndex(role => role.id == this.data.id)
-            this.roles[index].permission = data
+            location.reload();
          }else{
            this.swr()
          }
      },
      changeAdmin(){
        let index = this.roles.findIndex(role => role.id == this.data.id)
-       let permission = this.roles[index].permission
+       let permission = this.roles[index].permissions;
+         console.log(permission);
        if(!permission){
-           this.resources = this.defaultResourcesPermission
+           this.permissions = this.permissionsDefault;
        }else{
-         this.resources = JSON.parse(permission)
+         this.permissions = JSON.parse(permission)
        }
-
      }
-
-
-
   },
-
-  async created() {
-    console.log(this.$route)
-    const res = await this.callApi('get', 'app/get_roles')
-    if (res.status == 200) {
-      this.roles = res.data;
-      if(res.data.length){
-         this.data.id = res.data[0].id
-         if(res.data[0].permission){
-            this.resources = JSON.parse(res.data[0].permission)
-            //this.resources = this.defaultResourcesPermission
-         }
-      }
-    } else {
-      this.swr();
+    async created(){
+        const [res, resPermission] = await Promise.all([
+            this.callApi('get', 'api/role/listing'),
+            this.callApi('get', 'api/permission/listing'),
+        ])
+        if(res.status==200){
+            this.roles = res.data.data.data;
+            // if(this.roles.length){
+            //     this.data.id = this.roles[0].id;
+            //     if(this.roles[0].permissions){
+            //         this.permissions = this.roles[0].permissions;
+            //     }
+            // }
+        }else{
+            this.swr()
+        }
+        if(resPermission.status==200){
+            this.permissions = resPermission.data.data.data;
+            this.permissions = this.permissions.map(permission => ({
+                ...permission,
+                read: false, write: false, update: false, delete: false
+            }));
+            this.permissionsDefault = this.permissions;
+        }else{
+            this.swr()
+        }
     }
-  },
-
 };
 </script>

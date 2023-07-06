@@ -7,6 +7,7 @@ use App\Http\Requests\Api\Role\DeleteRequest;
 use App\Http\Requests\Api\Role\DetailRequest;
 use App\Http\Requests\Api\Role\ListingRequest;
 use App\Http\Requests\Api\Role\StoreRequest;
+use App\Http\Requests\Api\Role\AssignRequest;
 use App\Http\Requests\Api\Role\UpdateIsActiveRequest;
 use App\Http\Requests\Api\Role\UpdateIsShowRequest;
 use App\Http\Requests\Api\Role\UpdateRequest;
@@ -250,6 +251,28 @@ class RoleController extends Controller
             }
             DB::commit();
             return success(GENERAL_DELETED_MESSAGE);
+        } catch (QueryException $e) {
+            DB::rollBack();
+            return error($e->getMessage(), ERROR_500);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return error($e->getMessage(), ERROR_500);
+        }
+    }
+
+    public function assignRole(AssignRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            $inputs = $request->all();
+            $model = $this->model->newQuery()->where('id', $inputs['id'])->first();
+            $model->fill($inputs);
+            if (!$model->save()) {
+                DB::rollback();
+                return error(GENERAL_ERROR_MESSAGE, ERROR_400);
+            }
+            DB::commit();
+            return successWithData(GENERAL_SUCCESS_MESSAGE, $model->fresh());
         } catch (QueryException $e) {
             DB::rollBack();
             return error($e->getMessage(), ERROR_500);

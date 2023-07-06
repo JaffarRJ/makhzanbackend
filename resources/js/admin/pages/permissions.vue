@@ -12,6 +12,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
+                                <th>Tab Name</th>
                                 <th>Route</th>
                                 <th>Action</th>
                             </tr>
@@ -20,6 +21,7 @@
                             <tr v-for="(items, i) in setData" :key="i" v-if="setData.length">
                                 <td>{{items.id}}</td>
                                 <td class="_table_name">{{items.name}}</td>
+                                <td>{{items.tab_name}}</td>
                                 <td>{{items.route}}</td>
                                 <td>
                                     <Button type="info" size="small" @click="showEditModal(items, i)">Edit</Button>
@@ -38,6 +40,9 @@
                 <!-- adding modal -->
                 <Modal v-model="addModal" title="Add Permission" :mask-closable="false" :closable="false">
                     <div class="space">
+                        <Input type="text" v-model="data.tab_name" placeholder="Permissions Name" autocomplete="off" />
+                    </div>
+                    <div class="space">
                         <Input type="text" v-model="data.name" placeholder="Permissions Name" autocomplete="off" />
                     </div>
                     <div class="space">
@@ -51,8 +56,11 @@
                 </Modal>
                 <!-- editing modal -->
                 <Modal v-model="editModal" title="Edit Permission" :mask-closable="false" :closable="false">
+                    <Input type="hidden" v-model="editData.id"/>
                     <div class="space">
-                        <Input type="hidden" v-model="editData.id" placeholder="Permssion Name"  />
+                        <Input type="text" v-model="editData.tab_name" placeholder="Tab Name" autocomplete="off" />
+                    </div>
+                    <div class="space">
                         <Input type="text" v-model="editData.name" placeholder="Permssion Name"  />
                     </div>
                     <div class="space">
@@ -116,6 +124,7 @@
         data(){
             return {
                 data : {
+                    tab_name: '',
                     name: '',
                     route: '',
                 },
@@ -124,6 +133,7 @@
                 isAdding : false,
                 setData : [],
                 editData : {
+                    tab_name: '',
                     name: '',
                     route: '',
                 },
@@ -145,6 +155,7 @@
 
         methods : {
             async addItem(){
+                if(this.data.tab_name.trim()=='') return this.e('Tab Name is required')
                 if(this.data.name.trim()=='') return this.e('Name is required')
                 if(this.data.route.trim()=='') return this.e('Route is required')
 
@@ -154,6 +165,7 @@
                     // this.setData.unshift(setItemData);
                     this.s('Items has been added successfully!');
                     this.addModal = false;
+                    this.data.tab_name = '';
                     this.data.name = '';
                     this.data.route = '';
                     window.location.reload();
@@ -168,6 +180,7 @@
                 }
             },
             async editItem(){
+                if(this.editData.tab_name.trim()=='') return this.e('Tab Name is required')
                 if(this.editData.name.trim()=='') return this.e('Name is required')
                 if(this.editData.route.trim()=='') return this.e('Route is required')
                 const res = await this.callApi('post', 'api/permission/update', this.editData)
